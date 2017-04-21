@@ -1,0 +1,101 @@
+FORMAT: 1A
+HOST: http://spicar.io/
+
+# SpiCar
+
+This API is used for interaction with the SpiCar vehicle communication unit.
+
+In case the API is used as JSON messages on PubNub, endpoint paths should be ignored.
+
+Data can be requested manually, configured for periodic transmission or subscribed to on event basis. 
+In all cases, the JSON format of the responses are identical.
+
+# Group Configuration
+## Device Configuration
+
+## Event Based Notifications
+
+## Periodic Data Notifications
+
+# Group Requests
+
+## Request [GET /request]
+
+The request message retrieves current data values from the SpiCar unit.
+For response format, please see the data section for the appropriate data type.
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer {access_token}
+            
+    + Attributes (object)
+        + request (required, enum[string]) - Data to receive
+            + Members
+                + `location` - GNSS and IMU sensor fusion based location data
+                + `lv_bat` - Low voltage battery state of charge
+                + `hv_bat` - High voltage battery state of charge. Only applicable for electrical vehicles
+                + `fuel` - Fuel level. Only applicable for internal combustion vehicles
+                + `impact` - Time and severity of last detected impact
+                + `door_lock` - State of the vehicle door lock
+                + `door_1_open` - State of the first vehicle door
+                + `door_2_open` - State of the second vehicle door
+                + `door_3_open` - State of the third vehicle door
+                + `door_4_open` - State of the fourth vehicle door
+                + `door_5_open` - State of the fifth vehicle door
+                + `seat_1_free` - State of the first seat
+                + `seat_2_free` - State of the second seat
+                + `seat_3_free` - State of the third seat
+                + `seat_4_free` - State of the fourth seat
+                + `seat_5_free` - State of the fifth seat
+                + `drivetrain_state` - State of the drivetrain
+                + `window_1_open` - State of the first window
+                + `window_2_open` - State of the second window
+                + `window_3_open` - State of the third window
+                + `window_4_open` - State of the fourth window
+                + `handbrake_on` - State of the handbrake
+                + `gear_state` - Gear state (PRND)
+                + `speed` - Speed as reported by the vehicle
+                + `rpm` - Engine RPM
+
++ Response 200 (application/json)
+        
+        For response format, please see the data section for the appropriate data type.
+
+# Group Data
+
+## Location [GET /location]
+
+GNSS and IMU sensor fusion based location data
+
++ Request (application/json)
+    + Attributes (object)
+        + request: location (required, string)
+
++ Response 200 (application/json)
+    + Attributes (object)
+        + location (required)
+            + lat: 55.67594 (required, number) - Latitude of location (decimal degrees)
+            + lon: 12.56553 (required, number) - Longitude of location (decimal degrees)
+            + alt: 9.3 (required, number) - Altitude of location (meters above sea level)
+            + heading: 223.48680 (required, number) - Magnetic heading (degrees)
+            + speed: 10.2 (required, number) - Current speed (meters/second)
+
+## Door Lock [GET /door_lock]
+
+Door lock status
+
++ Request (application/json)
+    + Attributes (object)
+        + request: door_lock (required, string)
+
++ Response 200 (application/json)
+    + Attributes (object)
+        + door_lock (required)
+            + locked: true (required, boolean) - State of the vehicle door lock
+
+
+
+
+# Group Aggregated Data
