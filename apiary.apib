@@ -46,7 +46,7 @@ This message configures the device to automatically send JSON formatted data mes
                     + `window_2_open` - State of the second window
                     + `window_3_open` - State of the third window
                     + `window_4_open` - State of the fourth window
-                    + `handbrake_on` - State of the handbrake
+                    + `handbrake_active` - State of the handbrake
                     + `gear_state` - Gear state (PRND)
             + enable (required, boolean)
 
@@ -72,7 +72,7 @@ This message configures the device to automatically send JSON formatted data mes
                     + `window_2_open` - State of the second window
                     + `window_3_open` - State of the third window
                     + `window_4_open` - State of the fourth window
-                    + `handbrake_on` - State of the handbrake
+                    + `handbrake_active` - State of the handbrake
                     + `gear_state` - Gear state (PRND)
             + result (required, boolean) - Result of subscription change
             + reason (optional, string) - Description of error
@@ -112,7 +112,7 @@ This message configures the device to automatically send JSON formatted data mes
                     + `window_2_open` - State of the second window
                     + `window_3_open` - State of the third window
                     + `window_4_open` - State of the fourth window
-                    + `handbrake_on` - State of the handbrake
+                    + `handbrake_active` - State of the handbrake
                     + `gear_state` - Gear state (PRND)
                     + `speed` - Speed as reported by the vehicle
                     + `rpm` - Engine RPM
@@ -143,7 +143,7 @@ This message configures the device to automatically send JSON formatted data mes
                     + `window_2_open` - State of the second window
                     + `window_3_open` - State of the third window
                     + `window_4_open` - State of the fourth window
-                    + `handbrake_on` - State of the handbrake
+                    + `handbrake_active` - State of the handbrake
                     + `gear_state` - Gear state (PRND)
                     + `speed` - Speed as reported by the vehicle
                     + `rpm` - Engine RPM
@@ -153,9 +153,9 @@ This message configures the device to automatically send JSON formatted data mes
 
 # Group Requests
 
-## Request [GET /request]
+## Get [GET /get]
 
-The request message retrieves current data values from the SpiCar unit.
+The get message retrieves current data values from the SpiCar unit.
 For response format, please see the data section for the appropriate data type.
 
 + Request (application/json)
@@ -165,7 +165,7 @@ For response format, please see the data section for the appropriate data type.
             Authorization: Bearer {access_token}
             
     + Attributes (object)
-        + request (required, enum[string]) - Data to receive
+        + get (required, enum[string]) - Data to receive
             + Members
                 + `location` - GNSS and IMU sensor fusion based location data
                 + `lv_bat` - Low voltage battery state of charge
@@ -188,7 +188,7 @@ For response format, please see the data section for the appropriate data type.
                 + `window_2_open` - State of the second window
                 + `window_3_open` - State of the third window
                 + `window_4_open` - State of the fourth window
-                + `handbrake_on` - State of the handbrake
+                + `handbrake_active` - State of the handbrake
                 + `gear_state` - Gear state (PRND)
                 + `speed` - Speed as reported by the vehicle
                 + `rpm` - Engine RPM
@@ -201,15 +201,20 @@ For response format, please see the data section for the appropriate data type.
 
 ## Location [GET /location]
 
-GNSS and IMU sensor fusion based location data
+GNSS and IMU sensor fusion based location data.
 
 Events: No
 
 Periodic: Yes
 
 + Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer {access_token}
+            
     + Attributes (object)
-        + request: location (required, string)
+        + get: location (required, string)
 
 + Response 200 (application/json)
     + Attributes (object)
@@ -220,6 +225,100 @@ Periodic: Yes
             + heading: 223.48680 (required, number) - Magnetic heading (degrees)
             + speed: 10.2 (required, number) - Current speed (meters/second)
 
+## LV Battery SoC [GET /lv_bat]
+
+Low voltage battery state of charge in percent. 
+The low voltage battery is often 12V in personal vehicles and 24V in trucks.
+
+Events: No
+
+Periodic: Yes
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer {access_token}
+            
+    + Attributes (object)
+        + get: lv_bat (required, string)
+
++ Response 200 (application/json)
+    + Attributes (object)
+        + lv_bat (required)
+            + soc: 65.8 (required, number) - Remaining battery power in percent
+
+## HV Battery SoC [GET /hv_bat]
+
+High voltage battery state of charge in percent.
+Only applicable for electrical vehicles.
+
+Events: No
+
+Periodic: Yes
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer {access_token}
+            
+    + Attributes (object)
+        + get: hv_bat (required, string)
+
++ Response 200 (application/json)
+    + Attributes (object)
+        + hv_bat (required)
+            + soc: 65.8 (required, number) - Remaining battery power in percent
+
+## Fuel Level [GET /fuel]
+
+Fuel level. 
+Only applicable for internal combustion vehicles.
+
+Events: No
+
+Periodic: Yes
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer {access_token}
+            
+    + Attributes (object)
+        + get: fuel (required, string)
+
++ Response 200 (application/json)
+    + Attributes (object)
+        + fuel (required)
+            + level: 65.8 (required, number) - Remaining fuel in liters
+
+## Impact [GET /impact]
+
+Time and severity of last detected impact.
+
+Timestamp is in Unix time, which is seconds since Jan 01 1970 (UTC).
+
+Events: Yes
+
+Periodic: No
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer {access_token}
+            
+    + Attributes (object)
+        + get: impact (required, string)
+
++ Response 200 (application/json)
+    + Attributes (object)
+        + impact (required)
+            + time: 1492965666 (required, number) - Unix timestamp of impact.
+            + force: 1.2 (required, number) - Force in g
+
 ## Door Lock [GET /door_lock]
 
 Door lock status
@@ -229,13 +328,451 @@ Events: Yes
 Periodic: Yes
 
 + Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer {access_token}
+            
     + Attributes (object)
-        + request: door_lock (required, string)
+        + get: door_lock (required, string)
 
 + Response 200 (application/json)
     + Attributes (object)
         + door_lock (required)
             + locked: true (required, boolean) - State of the vehicle door lock
+
+## Door 1 State [GET /door_1_open]
+
+State of the first vehicle door
+
+Events: Yes
+
+Periodic: Yes
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer {access_token}
+            
+    + Attributes (object)
+        + get: door_1_open (required, string)
+
++ Response 200 (application/json)
+    + Attributes (object)
+        + door_1_open (required)
+            + open: true (required, boolean) - State of the first vehicle door
+
+## Door 2 State [GET /door_2_open]
+
+State of the second vehicle door
+
+Events: Yes
+
+Periodic: Yes
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer {access_token}
+            
+    + Attributes (object)
+        + get: door_2_open (required, string)
+
++ Response 200 (application/json)
+    + Attributes (object)
+        + door_2_open (required)
+            + open: true (required, boolean) - State of the second vehicle door
+
+## Door 3 State [GET /door_3_open]
+
+State of the third vehicle door
+
+Events: Yes
+
+Periodic: Yes
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer {access_token}
+            
+    + Attributes (object)
+        + get: door_3_open (required, string)
+
++ Response 200 (application/json)
+    + Attributes (object)
+        + door_3_open (required)
+            + open: true (required, boolean) - State of the third vehicle door
+
+## Door 4 State [GET /door_4_open]
+
+State of the fourth vehicle door
+
+Events: Yes
+
+Periodic: Yes
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer {access_token}
+            
+    + Attributes (object)
+        + get: door_4_open (required, string)
+
++ Response 200 (application/json)
+    + Attributes (object)
+        + door_4_open (required)
+            + open: true (required, boolean) - State of the fourth vehicle door
+
+## Door 5 State [GET /door_5_open]
+
+State of the fifth vehicle door
+
+Events: Yes
+
+Periodic: Yes
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer {access_token}
+            
+    + Attributes (object)
+        + get: door_5_open (required, string)
+
++ Response 200 (application/json)
+    + Attributes (object)
+        + door_5_open (required)
+            + open: true (required, boolean) - State of the fifth vehicle door
+
+## Seat 1 State [GET /seat_1_free]
+
+State of the first seat
+
+Events: Yes
+
+Periodic: Yes
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer {access_token}
+            
+    + Attributes (object)
+        + get: seat_1_free (required, string)
+
++ Response 200 (application/json)
+    + Attributes (object)
+        + seat_1_free (required)
+            + free: true (required, boolean) - State of the first seat
+
+## Seat 2 State [GET /seat_2_free]
+
+State of the second seat
+
+Events: Yes
+
+Periodic: Yes
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer {access_token}
+            
+    + Attributes (object)
+        + get: seat_2_free (required, string)
+
++ Response 200 (application/json)
+    + Attributes (object)
+        + seat_2_free (required)
+            + free: true (required, boolean) - State of the second seat
+
+## Seat 3 State [GET /seat_3_free]
+
+State of the third seat
+
+Events: Yes
+
+Periodic: Yes
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer {access_token}
+            
+    + Attributes (object)
+        + get: seat_3_free (required, string)
+
++ Response 200 (application/json)
+    + Attributes (object)
+        + seat_3_free (required)
+            + free: true (required, boolean) - State of the third seat
+
+## Seat 4 State [GET /seat_4_free]
+
+State of the fourth seat
+
+Events: Yes
+
+Periodic: Yes
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer {access_token}
+            
+    + Attributes (object)
+        + get: seat_4_free (required, string)
+
++ Response 200 (application/json)
+    + Attributes (object)
+        + seat_4_free (required)
+            + free: true (required, boolean) - State of the fourth seat
+
+## Seat 5 State [GET /seat_5_free]
+
+State of the fifth seat
+
+Events: Yes
+
+Periodic: Yes
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer {access_token}
+            
+    + Attributes (object)
+        + get: seat_5_free (required, string)
+
++ Response 200 (application/json)
+    + Attributes (object)
+        + seat_5_free (required)
+            + free: true (required, boolean) - State of the fifth seat
+
+## Drivetrain State [GET /drivetrain_state]
+
+State of the drivetrain
+
+Events: Yes
+
+Periodic: Yes
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer {access_token}
+            
+    + Attributes (object)
+        + get: drivetrain_state (required, string)
+
++ Response 200 (application/json)
+    + Attributes (object)
+        + drivetrain_state (required)
+            + state (required, enum[string]) - State of the drivetrain
+                + Members
+                    + `off` - Vehicle and drivetrain is in power off mode
+                    + `accessory` - Drivetrain is not powered, but accessories such as radio is
+                    + `drive_enabled` - Drivetrain is powered and driving is possible depending on gear state
+
+## Window 1 Position [GET /window_1_open]
+
+State of the first window
+
+Events: Yes
+
+Periodic: Yes
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer {access_token}
+            
+    + Attributes (object)
+        + get: window_1_open (required, string)
+
++ Response 200 (application/json)
+    + Attributes (object)
+        + window_1_open (required)
+            + free: true (required, boolean) - State of the first window
+
+## Window 2 Position [GET /window_2_open]
+
+State of the second window
+
+Events: Yes
+
+Periodic: Yes
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer {access_token}
+            
+    + Attributes (object)
+        + get: window_2_open (required, string)
+
++ Response 200 (application/json)
+    + Attributes (object)
+        + window_2_open (required)
+            + free: true (required, boolean) - State of the second window
+
+## Window 3 Position [GET /window_3_open]
+
+State of the third window
+
+Events: Yes
+
+Periodic: Yes
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer {access_token}
+            
+    + Attributes (object)
+        + get: window_3_open (required, string)
+
++ Response 200 (application/json)
+    + Attributes (object)
+        + window_3_open (required)
+            + free: true (required, boolean) - State of the third window
+
+## Window 4 Position [GET /window_4_open]
+
+State of the fourth window
+
+Events: Yes
+
+Periodic: Yes
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer {access_token}
+            
+    + Attributes (object)
+        + get: window_4_open (required, string)
+
++ Response 200 (application/json)
+    + Attributes (object)
+        + window_4_open (required)
+            + free: true (required, boolean) - State of the fourth window
+
+## Handbrake State [GET /handbrake_active]
+
+State of the handbrake
+
+Events: Yes
+
+Periodic: Yes
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer {access_token}
+            
+    + Attributes (object)
+        + get: handbrake_active (required, string)
+
++ Response 200 (application/json)
+    + Attributes (object)
+        + handbrake_active (required)
+            + free: true (required, boolean) - State of the handbrake
+
+## Gear State [GET /gear_state]
+
+State of the gear
+
+Events: Yes
+
+Periodic: Yes
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer {access_token}
+            
+    + Attributes (object)
+        + get: gear_state (required, string)
+
++ Response 200 (application/json)
+    + Attributes (object)
+        + gear_state (required)
+            + state (required, enum[string]) - State of the gear
+                + Members
+                    + `park` - Parking mode
+                    + `reverse` - Reverse gear
+                    + `neutral` - Neutral gear state
+                    + `drive` - Only applicable for vehicles with automatic gears
+                    + `1` - Only applicable for vehicles without automatic gears
+                    + `2` - Only applicable for vehicles without automatic gears
+                    + `3` - Only applicable for vehicles without automatic gears
+                    + `4` - Only applicable for vehicles without automatic gears
+                    + `5` - Only applicable for vehicles without automatic gears
+                    + `6` - Only applicable for vehicles without automatic gears
+
+## Vehicle Speed [GET /speed]
+
+Speed as reported by the vehicle
+
+Events: No
+
+Periodic: Yes
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer {access_token}
+            
+    + Attributes (object)
+        + get: speed (required, string)
+
++ Response 200 (application/json)
+    + Attributes (object)
+        + speed (required)
+            + mps: 10.2 (required, number) - Current speed (meters/second), as reported by the vehicle
+
+## Engine RPM [GET /rpm]
+
+Engine revolutions per minute
+
+Events: No
+
+Periodic: Yes
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer {access_token}
+            
+    + Attributes (object)
+        + get: rpm (required, string)
+
++ Response 200 (application/json)
+    + Attributes (object)
+        + rpm (required)
+            + rpm: 7826 (required, number) - Engine revolutions per minute
 
 
 
